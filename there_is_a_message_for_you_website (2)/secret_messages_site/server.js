@@ -58,7 +58,16 @@ app.post('/api/message',(req,res)=>{
  const found=students.filter(s=>normalize(s.name)===normalize(name));
  // Ambiguous names across classes: return a general uplifting note rather than another student's private note.
  const selected=found.length===1?found[0]:null;
- res.json({name:selected?.name||name.trim().replace(/\s+/g,' '),message:selected?.message||defaultMessage(name),closing:'I am proud of you, and I believe beautiful things are ahead of you.'});
+ if (!selected) {
+  return res.status(404).json({
+    error: 'يا نجمتنا، لم نجد رسالة باسمكِ حاليًا 💗 تأكدي من كتابة اسمكِ كما هو مسجل لدى المعلمة.'
+  });
+}
+
+res.json({
+  name: selected.name,
+  message: selected.message,
+  closing: 'I am proud of you, and I believe beautiful things are ahead of you.'
 });
 app.post('/api/admin/login',(req,res)=>{
  const key=req.ip;const now=Date.now();const a=attempts.get(key)||{n:0,until:now+15*60000};if(now>a.until){a.n=0;a.until=now+15*60000}
